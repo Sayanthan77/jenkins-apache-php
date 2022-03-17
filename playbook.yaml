@@ -1,0 +1,39 @@
+---
+
+- hosts: 10.0.0.210
+
+  tasks:
+  - name: Installation du serveur Apache et PHP
+    yum:
+     name: "{{ item }}"
+     state: present
+    loop:
+      - httpd
+      - php
+      - nano
+      - mariadb-server
+
+  - name: Arret du service nginx
+    systemd:
+     name: nginx
+     state: stopped
+
+  - name: Démarrage du serveur apache
+    systemd:
+     name: "{{ item }}"
+     state: started
+    loop:
+      - httpd
+      - mariadb
+
+  - name: SUppression du fichier index.html
+    file:
+     path: /var/www/html/index.html
+     state: absent
+  - name: Copie des fichoers php
+    copy:
+     src: "{{ item }}"
+     dest: /var/www/html/
+    loop:
+     - index.php
+     - create_db.php
